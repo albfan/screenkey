@@ -38,6 +38,7 @@ def get_keymap_table():
                 new_keysyms = []
                 keycode = int(keycode.group(1))
                 keysyms = re_line.findall(line)
+                
                 # When you press only one key
                 unicode_char = ''
                 try:
@@ -72,6 +73,16 @@ def get_keymap_table():
                 unicode_char = ''
                 try:
                     unicode_char = unichr(int(keysyms[5], 16))
+                except:
+                    unicode_char = ''
+                if unicode_char == u'\x00':
+                    unicode_char = ''
+                new_keysyms.append(unicode_char)
+
+                # When you press a key plus mod4
+                unicode_char = ''
+                try:
+                    unicode_char = unichr(int(keysyms[6], 16))
                 except:
                     unicode_char = ''
                 if unicode_char == u'\x00':

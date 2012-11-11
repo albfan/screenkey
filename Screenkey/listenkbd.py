@@ -131,9 +131,9 @@ class ListenKbd(threading.Thread):
                 return name[3:]
         return ""
 
-    def replace_key(self, key, keysym):
+    def replace_key(self, keysym):
         for name in dir(XK):
-            if name[:3] == "XK_" and getattr(XK, name) == keysym:
+            if name[:3] == "XK_" and getattr(XK, name) == ord(keysym):
                 if name in REPLACE_KEYS:
                     return REPLACE_KEYS[name]
 
@@ -187,7 +187,7 @@ class ListenKbd(threading.Thread):
         keysym = self.local_dpy.keycode_to_keysym(event.detail, 0)
 
         if event.detail in self.keymap:
-            key_normal, key_shift, key_dead, key_deadshift = \
+            key_normal, key_shift, key_mod3, key_mod3shift, key_mod4 = \
                                             self.keymap[event.detail]
             self.logger.debug("Key %s(keycode) %s. Symbols %s" %
                 (event.detail,
@@ -214,7 +214,7 @@ class ListenKbd(threading.Thread):
             else:
                 self.cmd_keys['meta'] = False
             return
-        # Mod3 key
+        # Mod3 key (yes the name is wrong)
         if event.detail in self.modifiers['mod5']:
             if event.type == X.KeyPress:
                 self.cmd_keys['mod3'] = True
@@ -278,13 +278,13 @@ class ListenKbd(threading.Thread):
                     and ord(key_normal) in range(97,123):
                     key = key_shift
                 if self.cmd_keys['meta']:
-                    key = key_dead
+                    key = key_mod4
                 if self.cmd_keys['mod3']:
-                    key = key_dead
-                if self.cmd_keys['shift'] and self.cmd_keys['meta']:
-                    key = key_deadshift
+                    key = key_mod3
+                if self.cmd_keys['shift'] and self.cmd_keys['mod3']:
+                    key = key_mod3shift
 
-                string = self.replace_key(key, keysym)
+                string = self.replace_key(key)
                 if string:
                     key = string
 
@@ -308,7 +308,7 @@ class ListenKbd(threading.Thread):
 
     def stop(self):
         self.local_dpy.record_disable_context(self.ctx)
-        self.local_dpy.flush()
+        self.local_.flush()
         self.record_dpy.record_free_context(self.ctx)
         self.logger.debug("Thread stopped.")
 
