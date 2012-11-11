@@ -71,6 +71,7 @@ REPLACE_KEYS = {
     'XK_KP_Divide':u'(/)',
     'XK_Num_Lock':u'NumLock ',
     'XK_KP_Enter':u'\u23CE ',
+    'XK_KP_Enter':u'\u23CE ',
 }
 
 class ListenKbd(threading.Thread):
@@ -89,7 +90,8 @@ class ListenKbd(threading.Thread):
             'alt': False,
             'capslock': False,
             'meta': False,
-            'super':False
+            'super':False,
+            'mod3':False,
             }
 
         self.logger.debug("Thread created")
@@ -196,7 +198,6 @@ class ListenKbd(threading.Thread):
             self.logger.debug('No mapping for scan_code %d' % event.detail)
             return
 
-
         # Alt key
         if event.detail in self.modifiers['mod1']:
             if event.type == X.KeyPress:
@@ -212,6 +213,13 @@ class ListenKbd(threading.Thread):
                 self.cmd_keys['meta'] = True
             else:
                 self.cmd_keys['meta'] = False
+            return
+        # Mod3 key
+        if event.detail in self.modifiers['mod5']:
+            if event.type == X.KeyPress:
+                self.cmd_keys['mod3'] = True
+            else:
+                self.cmd_keys['mod3'] = False
             return
         # Super key
         if event.detail in self.modifiers['mod4']:
@@ -262,7 +270,7 @@ class ListenKbd(threading.Thread):
                 if self.cmd_keys['alt']:
                     mod = mod + _("Alt+")
                 if self.cmd_keys['super']:
-                    mod = mod + _("Super+")
+                    mod = mod + _("Win+")
 
                 if self.cmd_keys['shift']:
                     key = key_shift
@@ -270,6 +278,8 @@ class ListenKbd(threading.Thread):
                     and ord(key_normal) in range(97,123):
                     key = key_shift
                 if self.cmd_keys['meta']:
+                    key = key_dead
+                if self.cmd_keys['mod3']:
                     key = key_dead
                 if self.cmd_keys['shift'] and self.cmd_keys['meta']:
                     key = key_deadshift
