@@ -30,7 +30,7 @@ REPLACE_KEYS = {
     'XK_Escape':_('Esc '),
     'XK_Tab':u'\u21B9 ',
     'XK_Return':u'\u23CE ',
-    'XK_Space':u'␣',
+    'XK_Space':u'\u2423',
     'XK_Caps_Lock':_('Caps '),
     'XK_F1':u'F1 ',
     'XK_F2':u'F2 ',
