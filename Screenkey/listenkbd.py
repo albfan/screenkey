@@ -81,7 +81,7 @@ class ListenKbd(threading.Thread):
         self.mode = mode
         self.logger = logger
         self.label = label
-        self.text = ""
+        self.text = []
         self.command = None
         self.shift = None
         self.cmd_keys = {
@@ -139,11 +139,43 @@ class ListenKbd(threading.Thread):
 
     def update_text(self, string=None):
         gtk.gdk.threads_enter()
+        # if label has been reset, throw away old text
+        if self.label.get_text() == "":
+            self.text = []
+
+        # update text
         if not string is None:
-            self.text = "%s%s" % (self.label.get_text(), string)
-            self.label.set_text(self.text)
+            self.text.append(string)
         else:
-            self.label.set_text("")
+            self.text = []
+
+        # compress text
+        last = None
+        count = 1
+        compressed = []
+        for char in self.text:
+            if char == last:
+                count += 1
+            else:
+                if last != None:
+                    compressed.append((last, count))
+                count = 1
+            last = char
+        compressed.append((last, count))
+
+        compressed_text = ""
+        for char, count in compressed:
+            str = ""
+            if count > 1:
+                str += "%s*%d" % (char, count)
+            else:
+                str += char
+            if len(str) > 1:
+                compressed_text += " %s " % str
+            else:
+                compressed_text += str
+                
+        self.label.set_text(compressed_text.strip())
         gtk.gdk.threads_leave()
         self.label.emit("text-changed")
 
@@ -289,7 +321,7 @@ class ListenKbd(threading.Thread):
                     key = string
 
                 if mod != '':
-                    key = "%s%s " % (mod, key)
+                    key = "%s%s" % (mod, key)
                 else:
                     key = "%s%s" % (mod, key)
             else:
