@@ -26,8 +26,10 @@ from Screenkey import APP_NAME, APP_DESC, APP_URL, VERSION, AUTHOR
 from listenkbd import ListenKbd
 
 POS_TOP = 0
-POS_CENTER = 1
-POS_BOTTOM = 2
+POS_LEFT = 1
+POS_RIGHT = 2
+POS_CENTER = 3
+POS_BOTTOM = 4
 
 SIZE_LARGE = 0
 SIZE_MEDIUM = 1
@@ -40,6 +42,8 @@ class Screenkey(gtk.Window):
 
     POSITIONS = {
         POS_TOP:_('Top'),
+        POS_LEFT:_('Left'),
+        POS_RIGHT:_('Right'),
         POS_CENTER:_('Center'),
         POS_BOTTOM:_('Bottom'),
     }
@@ -65,8 +69,8 @@ class Screenkey(gtk.Window):
         self.options = self.load_state()
         if not self.options:
             self.options = {
-                'timeout': 1.5,
-                'position': POS_BOTTOM,
+                'timeout': 0.4,
+                'position': POS_RIGHT,
                 'size': SIZE_SMALL,
                 'mode': MODE_NORMAL,
                 }
@@ -192,7 +196,7 @@ class Screenkey(gtk.Window):
 
     def set_window_size(self, setting):
         """Set window and label size."""
-        window_width = self.screen_width
+        window_width = self.screen_width / 4
         window_height = -1
 
         if setting == SIZE_LARGE:
@@ -216,11 +220,15 @@ class Screenkey(gtk.Window):
         """Set window position."""
         window_width, window_height = self.get_size()
         if setting == POS_TOP:
-            self.move(0, window_height * 2)
+            self.move(0, window_height)
         if setting == POS_CENTER:
             self.move(0, self.screen_height / 2)
         if setting == POS_BOTTOM:
-            self.move(0, self.screen_height - window_height * 2)
+            self.move(0, self.screen_height - window_height)
+        if setting == POS_LEFT:
+            self.move(0, window_height)
+        if setting == POS_RIGHT:
+            self.move(self.screen_width - window_width, window_height)
 
     def on_statusicon_popup(self, widget, button, timestamp, data=None):
         if button == 3:
